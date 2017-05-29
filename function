@@ -1,0 +1,188 @@
+//select function
+
+#include <sys/select.h>
+#include <sys/time.h>
+#include <stdio.h>
+#include<sys/socket.h> 
+#include <sys/types.h>
+#include <string.h>
+#include <arpa/inet.h>
+#include <unistd.h> 
+#include <netdb.h>   
+#define MY_SOCK_PATH
+#define  LISTEN_BACKLOG 50
+
+#define handle_error(msg)
+	do 
+	{
+	perror(msg);
+	exit(EXIT_FAILURE);
+	}
+	while(0)
+
+int main(int ergc , char *argv[])
+{
+
+	/*create socket */
+	
+    int socket_desc;
+    socket_desc = socket(AF_INET , SOCK_STREAM , 0);
+     
+    if (socket_desc == -1)
+    {
+        printf("Could not create socket");
+    }
+    return 0; 
+
+    //1.tsocknamefunction
+    int socket;
+	struct sockaddr_in localaddr;
+	int la_len, ret;
+
+	la_len = sizeof( localaddr );
+
+	ret = getsockname( socket, 
+                   (struct sockaddr_in *)&localaddr, 
+                   &la_len );
+
+	if (ret == 0) {
+
+  	printf( "Local Address is : %s\n", 
+            inet_ntoa( localaddr.sin_addr ) );
+
+  	printf( "Local Port is : %d\n", localaddr.sin_port );
+
+	}
+
+
+/*connect function*/
+int connect(int sockfd, struct sockaddr *serv_addr, int addrlen);
+
+int select( int num, fd_set *readsds, fd_set *writesds, 
+            fd_set *exceptfds, struct timeval *timeout );
+
+
+//2.getsocket function
+
+int sock, ret, size, len;
+
+sock = socket( AF_INET, SOCK_STREAM, 0 );
+
+len = sizeof( size );
+
+ret = getsockopt( sock, SOL_SOCKET, SO_SNDBUF,
+                  (void *)&size, (socklen_t *)&len );
+
+size = size * 2;
+
+ret = setsockopt( sock, SOL_SOCKET, SO_SNDBUF,
+                  (void *)&size, sizeof( size ) );
+
+
+//3.gethostbyname function
+
+struct hostent *hp;
+int i;
+
+hp = gethostbyname( "www.microsoft.com" );
+
+if (hp) {
+
+  printf( "h_name is %s\n", hp->h_name );
+  printf( "h_addrtype is %d\n", hp->h_addrtype );
+
+  i=0;
+  printf( "Aliases:\n" );
+  while (1) {
+
+    if ( hp->h_aliases[i] ) {
+
+      printf( "h_aliases[%d] = %s\n", i, hp->h_aliases[i] );
+      i++;
+
+    } else break;
+
+  }
+
+  i=0;
+  printf( "Addresses:\n" );
+  while (1) {
+
+    if ( hp->h_addr_list[i] ) {
+
+      struct in_addr theAddr;
+      memcpy( &theAddr.s_addr, 
+               hp->h_addr_list[i], sizeof(theAddr.s_addr) );
+      printf( "  h_addr_list[%d] = %s\n", 
+              i, inet_ntoa( theAddr ) );
+      i++;
+
+    } else break;
+
+  }
+
+}
+
+//4.getservhost function
+
+struct servent *sp;
+
+sp = getservbyport( htons(80), NULL );
+
+if (sp) {
+
+  printf( "Service %s is at port %d\n",
+           sp->s_name, ntohs( sp->s_port ) );
+
+}
+
+// Resolving an unknown type of address. 
+ 
+char address[]={"www.address.com"};
+
+saddr.sin_addr.s_addr = inet_addr( address );
+
+if ( saddr.sin_addr.s_addr = 0xffffffff ) {
+
+  struct hostent *hptr = 
+    (struct hostent *)gethostbyname( address );
+
+  if (hptr == NULL) {
+
+    /* Can't resolve the address... */
+
+  } else {
+
+    struct in_addr **addrs;
+    addrs = (struct in_addr **)hptr->h_addr_list;
+    memcpy( &saddr.sin_addr, *addrs, sizeof(struct in_addr) );
+
+  }
+
+}
+
+//5.getpeeername function
+
+int socket;
+struct sockaddr_in peeraddr;
+int la_len, retn;
+
+
+
+la_len = sizeof( peeraddr );
+
+retn = getpeername( socket, 
+                   (struct sockaddr_in *)&peeraddr, 
+                   &la_len );
+
+if (ret == 0) {
+
+      printf( "Peer Address is : %s\n", 
+              inet_ntoa( peeraddr.sin_addr ) );
+
+      printf( "Peer Port is : %d\n", peeraddr.sin_port );
+
+}
+
+
+}
